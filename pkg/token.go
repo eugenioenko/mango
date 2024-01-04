@@ -25,6 +25,6 @@ func MakeToken(Type TokenType, literal string) Token {
 	return Token{Type, literal}
 }
 
-var SingleCharSymbols []rune = []rune{'*', '+', '-', '!', '=', '/', '(', ')', '{', '}', '[', ']', ','}
+var SingleCharSymbols []rune = []rune{'*', '+', '-', '!', '=', '/', '(', ')', '{', '}', '[', ']', ',', '$'}
 var WhitespaceCharSymbols []rune = []rune{' ', '\t', '\r', '\n'}
 var ReservedIdentifiers []string = []string{"null", "false", "true", "func", "return", "and", "or", "if", "while"}

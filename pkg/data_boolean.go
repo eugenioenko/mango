@@ -20,7 +20,6 @@ func (data *MangoBoolean) ToBoolean() bool {
 }
 
 func (data *MangoBoolean) ToInteger() int64 {
-	// TODO: confirm if its better to return error here instead of a value
 	if data.Value {
 		return 1
 	}

@@ -1,8 +1,7 @@
 package mango
 
 import (
-	"log"
-	"os"
+	"fmt"
 )
 
 type Parser struct {
@@ -11,10 +10,22 @@ type Parser struct {
 	expressions []Expression
 }
 
-func Parse(tokens []Token) ([]Expression, error) {
+func Parse(tokens []Token) (exprs []Expression, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			exprs = nil
+			err = fmt.Errorf("%s", r)
+			return
+		}
+	}()
+
+	if len(tokens) == 0 {
+		return nil, nil
+	}
+
 	parser := NewParser()
-	expressions := parser.Parse(tokens)
-	return expressions, nil
+	exprs = parser.Parse(tokens)
+	return exprs, err
 }
 
 func (parser *Parser) Parse(tokens []Token) []Expression {
@@ -67,7 +78,7 @@ func (parser *Parser) Consume(errorMessage string, tokenTypes ...TokenType) Toke
 	if parser.Check(tokenTypes...) {
 		return parser.Advance()
 	}
-	parser.Error(parser.Peek(), errorMessage)
+	parser.Error(errorMessage)
 	return parser.Peek()
 }
 
@@ -91,9 +102,8 @@ func (parser *Parser) Eof() bool {
 		parser.current >= len(parser.tokens)
 }
 
-func (parser *Parser) Error(token Token, errorMessage string) {
-	log.Fatal("[Syntax Error] " + errorMessage)
-	os.Exit(1)
+func (parser *Parser) Error(errorMessage string) {
+	panic("[Syntax Error] " + errorMessage)
 }
 
 // ------------------------------------------------------------------------------
@@ -145,6 +155,10 @@ func (parser *Parser) Primary() Expression {
 		return NewExpressionVariable(parser.Previous())
 	}
 
-	parser.Error(parser.Previous(), "Unexpected end of file")
+	if parser.Eof() {
+		parser.Error("Unexpected end of file")
+	}
+	parser.Error("Invalid or unexpected token: " + parser.Peek().Literal)
+
 	return nil
 }
