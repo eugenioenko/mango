@@ -1,8 +1,10 @@
 let fs = require("fs");
 
 const ExpressionAST = {
-  List: ["value []Expression"],
-  Atom: ["value Token"],
+  Binary: ["left Expression", "operator Token", "right Expression"],
+  Unary: ["operator Token", "right Expression"],
+  Primary: ["value Token"],
+  Variable: ["name Token"],
 };
 
 function generateAST(base, arg, AST, filename) {
@@ -35,7 +37,7 @@ type ${base} interface {
     file += `\treturn visitor.Visit${base}${name}(${arg})\n}\n\n`;
   });
 
-  fs.writeFile(`${filename}.go`, file, function (err, data) {
+  fs.writeFile(`pkg/${filename}.go`, file, function (err, data) {
     if (err) console.log(err);
     console.log(`${filename}.go generated`);
   });

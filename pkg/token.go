@@ -7,25 +7,13 @@ type TokenType int
 // Token definitions
 const (
 	// parser tokens
-	TokenTypeEof  = -1
-	TokenTypeNull = 0
-
-	// single character tokens
-	TokenTypeLeftBrace    = 1
-	TokenTypeLeftBracket  = 2
-	TokenTypeLeftParen    = 3
-	TokenTypeRightBrace   = 5
-	TokenTypeRightBracket = 6
-	TokenTypeRightParen   = 7
+	TokenTypeEof = -1
 
 	// literals
-	TokenTypeReserved   = 30
-	TokenTypeIdentifier = 31
-	TokenTypeBoolean    = 34
-	TokenTypeTrue       = 35
-	TokenTypeFalse      = 36
-	TokenTypeNumber     = 37
-	TokenTypeOperator   = 39
+	TokenTypeSymbol     = 0
+	TokenTypeReserved   = 1
+	TokenTypeIdentifier = 2
+	TokenTypeNumber     = 3
 )
 
 type Token struct {
@@ -36,3 +24,7 @@ type Token struct {
 func MakeToken(Type TokenType, literal string) Token {
 	return Token{Type, literal}
 }
+
+var SingleCharSymbols []rune = []rune{'*', '+', '-', '!', '=', '/', '(', ')'}
+var WhitespaceCharSymbols []rune = []rune{' ', '\t', '\r', '\n'}
+var ReservedIdentifiers []string = []string{"null", "false", "true", "func", "return", "and", "or", "if", "while"}

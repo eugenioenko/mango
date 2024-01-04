@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"unicode"
 )
 
@@ -16,14 +17,14 @@ type Tokenizer struct {
 	tokens  []Token
 }
 
-func Scan(source string) ([]Token, error) {
-	tokenizer := MakeTokenizer()
+func Tokenize(source string) ([]Token, error) {
+	tokenizer := NewTokenizer()
 	tokenizer.LoadFromString(source)
 	return tokenizer.Tokenize()
 }
 
-func MakeTokenizer() Tokenizer {
-	return Tokenizer{}
+func NewTokenizer() *Tokenizer {
+	return &Tokenizer{}
 }
 
 func (tokenizer *Tokenizer) LoadFromString(source string) {
@@ -95,7 +96,11 @@ func (tokenizer *Tokenizer) Identifier() {
 		tokenizer.Advance()
 	}
 	token := string(tokenizer.source[tokenizer.start:tokenizer.current])
-	tokenizer.AddToken(TokenTypeIdentifier, token)
+	if slices.Contains(ReservedIdentifiers, token) {
+		tokenizer.AddToken(TokenTypeReserved, token)
+	} else {
+		tokenizer.AddToken(TokenTypeIdentifier, token)
+	}
 }
 
 func (tokenizer *Tokenizer) Number() {
@@ -115,17 +120,15 @@ func (tokenizer *Tokenizer) Number() {
 
 func (tokenizer *Tokenizer) twoChar(char rune) bool {
 	return (char == '!' && tokenizer.Match('=')) ||
-		(char == '=' && tokenizer.Match('=')) ||
-		(char == ':' && tokenizer.Match('=')) ||
-		(char == '/' && tokenizer.Match('='))
+		(char == '=' && tokenizer.Match('='))
 }
 
 func (tokenizer *Tokenizer) oneChar(char rune) bool {
-	return char == '*' || char == '+' || char == '-' || char == '!' || char == '=' || char == '/'
+	return slices.Contains(SingleCharSymbols, char)
 }
 
 func (tokenizer *Tokenizer) ignoreChar(char rune) bool {
-	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+	return slices.Contains(WhitespaceCharSymbols, char)
 }
 
 func (tokenizer *Tokenizer) ScanToken() (bool, error) {
@@ -133,14 +136,10 @@ func (tokenizer *Tokenizer) ScanToken() (bool, error) {
 	char := rune(tokenizer.Advance())
 
 	switch {
-	case char == '(':
-		tokenizer.AddToken(TokenTypeLeftParen, "(")
-	case char == ')':
-		tokenizer.AddToken(TokenTypeRightParen, ")")
 	case tokenizer.twoChar(char):
-		tokenizer.AddToken(TokenTypeOperator, string(char)+"=")
+		tokenizer.AddToken(TokenTypeSymbol, string(char)+"=")
 	case tokenizer.oneChar(char):
-		tokenizer.AddToken(TokenTypeOperator, string(char))
+		tokenizer.AddToken(TokenTypeSymbol, string(char))
 	case unicode.IsDigit(char):
 		tokenizer.Number()
 	case unicode.IsLetter(char):

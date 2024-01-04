@@ -6,13 +6,21 @@ import (
 )
 
 func TestScan(t *testing.T) {
-	source := "(+ 10 1 20)"
-	tokens, err := mango.Scan(source)
+	source := `
+		x = 12 * 4
+		y = x + (x * 2)
+
+		func name(a, b) {
+			res = a + b
+			return res
+		}
+	`
+	tokens, err := mango.Tokenize(source)
 
 	if err != nil {
 		t.Fail()
 	}
-	if len(tokens) != 7 {
+	if len(tokens) != 28 {
 		t.Fail()
 	}
 }
