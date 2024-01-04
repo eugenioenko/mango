@@ -3,7 +3,6 @@ package mango
 import (
 	"errors"
 	"fmt"
-	"os"
 	"slices"
 	"unicode"
 )
@@ -17,7 +16,7 @@ type Tokenizer struct {
 	tokens  []Token
 }
 
-func Tokenize(source string) ([]Token, error) {
+func Tokenize(source string) (tokens []Token, err error) {
 	tokenizer := NewTokenizer()
 	tokenizer.LoadFromString(source)
 	return tokenizer.Tokenize()
@@ -71,21 +70,20 @@ func (tokenizer *Tokenizer) AddToken(Type TokenType, literal string) {
 	tokenizer.tokens = append(tokenizer.tokens, MakeToken(Type, literal))
 }
 
-func (tokenizer *Tokenizer) Error(errorMessage string) {
-	fmt.Println("[Scan Error] " + errorMessage)
-	os.Exit(1)
-}
-
 func (tokenizer *Tokenizer) Tokenize() ([]Token, error) {
 	tokenizer.current = 0
 	tokenizer.start = 0
 
 	for !tokenizer.Eof() {
 		tokenizer.start = tokenizer.current
-		tokenizer.ScanToken()
+		ok, err := tokenizer.ScanToken()
+		if !ok {
+			return nil, err
+		}
 	}
 	tokenizer.AddToken(TokenTypeEof, "")
 	return tokenizer.tokens, nil
+
 }
 
 func (tokenizer *Tokenizer) Identifier() {
@@ -147,7 +145,7 @@ func (tokenizer *Tokenizer) ScanToken() (bool, error) {
 	case tokenizer.ignoreChar(char):
 		break
 	default:
-		err = fmt.Sprintf("[Tokenizer] Unexpected character:  %q", char)
+		err = fmt.Sprintf("[Scanner Error] Unexpected character: %q", char)
 	}
 	if err != "" {
 		return false, errors.New(err)

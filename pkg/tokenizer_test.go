@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestScan(t *testing.T) {
+func TestItShouldScanTokens(t *testing.T) {
 	source := `
 		x = 12 * 4
 		y = x + (x * 2)
@@ -20,7 +20,18 @@ func TestScan(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	if len(tokens) != 28 {
+	if len(tokens) != 31 {
+		t.Fail()
+	}
+}
+
+func TestItShouldReturnErrorForUnknownTokens(t *testing.T) {
+	source := `
+		$
+	`
+	_, err := mango.Tokenize(source)
+
+	if err == nil || err.Error() != "[Scanner Error] Unexpected character: '$'" {
 		t.Fail()
 	}
 }
