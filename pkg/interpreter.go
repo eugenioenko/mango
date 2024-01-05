@@ -1,27 +1,43 @@
 package mango
 
 import (
-	"log"
-	"os"
+	"fmt"
+	"strconv"
 )
 
 type Interpreter struct {
-	Root    *Scope
-	Scope   *Scope
-	Runtime *Scope
+	Scope *Scope
 }
 
 func NewInterpreter() *Interpreter {
 	interpreter := Interpreter{}
-	interpreter.Runtime = &Scope{Parent: nil, Values: map[string]MangoData{}}
-	interpreter.Root = NewScope(nil)
-	interpreter.Scope = NewScope(interpreter.Root)
+	interpreter.Scope = NewScope(nil)
 	return &interpreter
 }
 
-func (interpreter *Interpreter) Interpret(statements []Expression) (result MangoData) {
+func Interpret(statements []Expression) (result []MangoData, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			result = nil
+			err = fmt.Errorf("%s", r)
+			return
+		}
+	}()
+
+	if len(statements) == 0 {
+		return nil, nil
+	}
+
+	interpreter := NewInterpreter()
+	result = interpreter.Interpret(statements)
+	return result, err
+}
+
+func (interpreter *Interpreter) Interpret(statements []Expression) []MangoData {
+	result := []MangoData{}
 	for _, statement := range statements {
-		result = interpreter.Evaluate(statement)
+		result = append(result, interpreter.Evaluate(statement))
+
 	}
 	return result
 }
@@ -31,22 +47,83 @@ func (interpreter *Interpreter) Evaluate(expr Expression) MangoData {
 }
 
 func (interpreter *Interpreter) Error(errorMessage string) {
-	log.Fatal("[Runtime Error] " + errorMessage)
-	os.Exit(1)
+	panic("[Runtime Error] " + errorMessage)
 }
 
-func (*Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
-	panic("unimplemented")
+func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
+	left := interpreter.Evaluate(expr.left)
+	right := interpreter.Evaluate(expr.right)
+
+	if right.GetType() != left.GetType() {
+		interpreter.Error("Type mismatch")
+	}
+
+	if left.GetType() == MangoTypeInteger {
+		var result int64
+		if expr.operator.Literal == "+" {
+			result = left.ToInteger() + right.ToInteger()
+		} else if expr.operator.Literal == "-" {
+			result = left.ToInteger() - right.ToInteger()
+		} else if expr.operator.Literal == "*" {
+			result = left.ToInteger() * right.ToInteger()
+		} else if expr.operator.Literal == "/" {
+			result = left.ToInteger() / right.ToInteger()
+		}
+		return NewMangoInteger(result)
+	}
+
+	if left.GetType() == MangoTypeFloat {
+		var result float64
+		if expr.operator.Literal == "+" {
+			result = left.ToFloat() + right.ToFloat()
+		} else if expr.operator.Literal == "-" {
+			result = left.ToFloat() - right.ToFloat()
+		} else if expr.operator.Literal == "*" {
+			result = left.ToFloat() * right.ToFloat()
+		} else if expr.operator.Literal == "/" {
+			result = left.ToFloat() / right.ToFloat()
+		}
+		return NewMangoFloat(result)
+	}
+
+	if left.GetType() == MangoTypeString && expr.operator.Literal == "+" {
+		return NewMangoString(left.ToString() + right.ToString())
+	}
+
+	return NewMangoNull()
 }
 
-func (*Interpreter) VisitExpressionPrimary(expr *ExpressionPrimary) MangoData {
-	panic("unimplemented")
+func (interpreter *Interpreter) VisitExpressionPrimary(expr *ExpressionPrimary) MangoData {
+	if expr.value.Type == TokenTypeNumber {
+		value, err := strconv.ParseInt(expr.value.Literal, 10, 64)
+		if err != nil {
+			interpreter.Error(fmt.Sprintf("%s is not a valid integer", expr.value.Literal))
+		}
+		return NewMangoInteger(value)
+	}
+
+	if expr.value.Type == TokenTypeFloat {
+		value, err := strconv.ParseFloat(expr.value.Literal, 64)
+		if err != nil {
+			interpreter.Error(fmt.Sprintf("%s is not a valid float", expr.value.Literal))
+		}
+		return NewMangoFloat(value)
+	}
+
+	if expr.value.Type == TokenTypeString {
+		return NewMangoString(expr.value.Literal)
+	}
+
+	interpreter.Error("unknown token type")
+	return nil
 }
 
-func (*Interpreter) VisitExpressionUnary(expr *ExpressionUnary) MangoData {
-	panic("unimplemented")
+func (interpreter *Interpreter) VisitExpressionUnary(expr *ExpressionUnary) MangoData {
+	interpreter.Error("unimplemented")
+	return nil
 }
 
-func (*Interpreter) VisitExpressionVariable(expr *ExpressionVariable) MangoData {
-	panic("unimplemented")
+func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable) MangoData {
+	interpreter.Error("unimplemented")
+	return nil
 }

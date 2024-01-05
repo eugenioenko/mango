@@ -43,7 +43,7 @@ func NewParser() *Parser {
 	return &Parser{}
 }
 
-func (parser *Parser) Match(tokenTypes ...TokenType) bool {
+func (parser *Parser) Match(tokenTypes ...int) bool {
 	for _, tokenType := range tokenTypes {
 		if parser.Peek().Type == tokenType {
 			parser.Advance()
@@ -64,7 +64,7 @@ func (parser *Parser) MatchSymbol(symbols ...string) bool {
 	return false
 }
 
-func (parser *Parser) Check(tokenTypes ...TokenType) bool {
+func (parser *Parser) Check(tokenTypes ...int) bool {
 	for _, tokenType := range tokenTypes {
 		currentType := parser.Peek().Type
 		if currentType == tokenType {
@@ -74,7 +74,7 @@ func (parser *Parser) Check(tokenTypes ...TokenType) bool {
 	return false
 }
 
-func (parser *Parser) Consume(errorMessage string, tokenTypes ...TokenType) Token {
+func (parser *Parser) Consume(errorMessage string, tokenTypes ...int) Token {
 	if parser.Check(tokenTypes...) {
 		return parser.Advance()
 	}

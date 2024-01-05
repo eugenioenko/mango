@@ -66,7 +66,7 @@ func (tokenizer *Tokenizer) PeekNext() rune {
 	return rune(tokenizer.source[tokenizer.current+1])
 }
 
-func (tokenizer *Tokenizer) AddToken(Type TokenType, literal string) {
+func (tokenizer *Tokenizer) AddToken(Type int, literal string) {
 	tokenizer.tokens = append(tokenizer.tokens, MakeToken(Type, literal))
 }
 
@@ -102,18 +102,20 @@ func (tokenizer *Tokenizer) Identifier() {
 }
 
 func (tokenizer *Tokenizer) Number() {
+	tokenType := TokenTypeNumber
 
 	for unicode.IsDigit(tokenizer.Peek()) {
 		tokenizer.Advance()
 	}
 
 	if tokenizer.Match('.') && unicode.IsDigit(tokenizer.Peek()) {
+		tokenType = TokenTypeFloat
 		for unicode.IsDigit(tokenizer.Peek()) {
 			tokenizer.Advance()
 		}
 	}
 
-	tokenizer.AddToken(TokenTypeNumber, string(tokenizer.source[tokenizer.start:tokenizer.current]))
+	tokenizer.AddToken(tokenType, string(tokenizer.source[tokenizer.start:tokenizer.current]))
 }
 
 func (tokenizer *Tokenizer) twoChar(char rune) bool {

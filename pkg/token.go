@@ -2,8 +2,6 @@ package mango
 
 // Token and TokenTypes
 
-type TokenType int
-
 // Token definitions
 const (
 	// parser tokens
@@ -14,14 +12,16 @@ const (
 	TokenTypeReserved   = 1
 	TokenTypeIdentifier = 2
 	TokenTypeNumber     = 3
+	TokenTypeFloat      = 4
+	TokenTypeString     = 5
 )
 
 type Token struct {
-	Type    TokenType
+	Type    int
 	Literal string
 }
 
-func MakeToken(Type TokenType, literal string) Token {
+func MakeToken(Type int, literal string) Token {
 	return Token{Type, literal}
 }
 
