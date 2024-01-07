@@ -114,7 +114,18 @@ func (parser *Parser) Statement() Expression {
 }
 
 func (parser *Parser) Expression() Expression {
-	return parser.Addition()
+	return parser.Assignment()
+}
+
+func (parser *Parser) Assignment() Expression {
+	expr := parser.Addition()
+	if parser.MatchSymbol("=") {
+		right := parser.Assignment()
+		if _, ok := expr.(*ExpressionVariable); ok {
+			return NewExpressionAssign(expr.(*ExpressionVariable).name, right)
+		}
+	}
+	return expr
 }
 
 func (parser *Parser) Addition() Expression {

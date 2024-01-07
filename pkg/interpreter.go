@@ -127,3 +127,9 @@ func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable
 	interpreter.Error("unimplemented")
 	return nil
 }
+
+func (interpreter *Interpreter) VisitExpressionAssign(expr *ExpressionAssign) MangoData {
+	value := interpreter.Evaluate(expr.value)
+	interpreter.Scope.Set(expr.name.Literal, value)
+	return nil
+}

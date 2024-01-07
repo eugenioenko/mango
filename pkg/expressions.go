@@ -5,10 +5,24 @@ type Expression interface {
 }
 
 type VisitorExpression interface {
+	VisitExpressionAssign(expr *ExpressionAssign) MangoData
 	VisitExpressionBinary(expr *ExpressionBinary) MangoData
 	VisitExpressionUnary(expr *ExpressionUnary) MangoData
 	VisitExpressionPrimary(expr *ExpressionPrimary) MangoData
 	VisitExpressionVariable(expr *ExpressionVariable) MangoData
+}
+
+type ExpressionAssign struct {
+	name  Token
+	value Expression
+}
+
+func NewExpressionAssign(name Token, value Expression) *ExpressionAssign {
+	return &ExpressionAssign{name, value}
+}
+
+func (expr *ExpressionAssign) Accept(visitor VisitorExpression) MangoData {
+	return visitor.VisitExpressionAssign(expr)
 }
 
 type ExpressionBinary struct {
