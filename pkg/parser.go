@@ -122,7 +122,7 @@ func (parser *Parser) Expression() Expression {
 
 func (parser *Parser) Assignment() Expression {
 	expr := parser.Addition()
-	if parser.MatchSymbol("=") {
+	if parser.MatchSymbol(":=") {
 		right := parser.Assignment()
 		if _, ok := expr.(*ExpressionVariable); ok {
 			return NewExpressionAssign(expr.(*ExpressionVariable).name, right)
@@ -177,7 +177,7 @@ func (parser *Parser) Primary() Expression {
 	if parser.Eof() {
 		parser.Error("Unexpected end of file")
 	}
-	parser.Error("Invalid or unexpected token: " + parser.Peek().Literal)
+	parser.Error(fmt.Sprintf("Invalid or unexpected token: `%s`", parser.Peek().Literal))
 
 	return nil
 }

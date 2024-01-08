@@ -62,7 +62,7 @@ func TestItShouldErrorOnEof(t *testing.T) {
 
 func TestItShouldDoAssignment(t *testing.T) {
 	source := `
-		variable = 100
+		variable := 100
 	`
 	tokens, _ := mango.Tokenize(source)
 	expressions, err := mango.Parse(tokens)

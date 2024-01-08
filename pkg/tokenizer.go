@@ -120,7 +120,7 @@ func (tokenizer *Tokenizer) Number() {
 
 func (tokenizer *Tokenizer) twoChar(char rune) bool {
 	return (char == '!' && tokenizer.Match('=')) ||
-		(char == '=' && tokenizer.Match('='))
+		(char == '=' && tokenizer.Match('=')) || (char == ':' && tokenizer.Match('='))
 }
 
 func (tokenizer *Tokenizer) oneChar(char rune) bool {
