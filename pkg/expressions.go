@@ -10,6 +10,7 @@ type VisitorExpression interface {
 	VisitExpressionGrouping(expr *ExpressionGrouping) MangoData
 	VisitExpressionUnary(expr *ExpressionUnary) MangoData
 	VisitExpressionPrimary(expr *ExpressionPrimary) MangoData
+	VisitExpressionPrint(expr *ExpressionPrint) MangoData
 	VisitExpressionVariable(expr *ExpressionVariable) MangoData
 }
 
@@ -75,6 +76,18 @@ func NewExpressionPrimary(value Token) *ExpressionPrimary {
 
 func (expr *ExpressionPrimary) Accept(visitor VisitorExpression) MangoData {
 	return visitor.VisitExpressionPrimary(expr)
+}
+
+type ExpressionPrint struct {
+	value Expression
+}
+
+func NewExpressionPrint(value Expression) *ExpressionPrint {
+	return &ExpressionPrint{value}
+}
+
+func (expr *ExpressionPrint) Accept(visitor VisitorExpression) MangoData {
+	return visitor.VisitExpressionPrint(expr)
 }
 
 type ExpressionVariable struct {

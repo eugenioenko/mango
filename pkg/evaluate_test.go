@@ -58,3 +58,22 @@ func TestItGroups(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestItPrints(t *testing.T) {
+	source := `
+		print 2
+	`
+	result, err := mango.Eval(source)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if len(result) != 1 {
+		t.Fail()
+	}
+
+	if result[0].ToInteger() != 2 {
+		t.Fail()
+	}
+}

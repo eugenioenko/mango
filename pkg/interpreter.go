@@ -132,6 +132,12 @@ func (interpreter *Interpreter) VisitExpressionGrouping(expr *ExpressionGrouping
 	return interpreter.Evaluate(expr.group)
 }
 
+func (interpreter *Interpreter) VisitExpressionPrint(expr *ExpressionPrint) MangoData {
+	result := interpreter.Evaluate(expr.value)
+	fmt.Println(result.ToString())
+	return result
+}
+
 func (interpreter *Interpreter) VisitExpressionAssign(expr *ExpressionAssign) MangoData {
 	value := interpreter.Evaluate(expr.value)
 	interpreter.Scope.Set(expr.name.Literal, value)

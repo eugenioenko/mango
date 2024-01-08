@@ -173,6 +173,11 @@ func (parser *Parser) Primary() Expression {
 		parser.ConsumeSymbol(")", "closing ) required after group expression")
 		return NewExpressionGrouping(expr)
 	}
+	if parser.Peek().Type == TokenTypeReserved && parser.Peek().Literal == "print" {
+		parser.ConsumeToken(TokenTypeReserved, "print token")
+		expr := parser.Expression()
+		return NewExpressionPrint(expr)
+	}
 
 	if parser.Eof() {
 		parser.Error("Unexpected end of file")

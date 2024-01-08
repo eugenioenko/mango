@@ -6,6 +6,7 @@ const ExpressionAST = {
   Grouping: ["group Expression"],
   Unary: ["operator Token", "right Expression"],
   Primary: ["value Token"],
+  Print: ["value Expression"],
   Variable: ["name Token"],
 };
 
