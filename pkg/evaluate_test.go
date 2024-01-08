@@ -39,3 +39,22 @@ func TestItAssign(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestItGroups(t *testing.T) {
+	source := `
+		(5 + 7)
+	`
+	result, err := mango.Eval(source)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if len(result) != 1 {
+		t.Fail()
+	}
+
+	if result[0].ToInteger() != 12 {
+		t.Fail()
+	}
+}

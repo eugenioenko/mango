@@ -128,6 +128,10 @@ func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable
 	return nil
 }
 
+func (interpreter *Interpreter) VisitExpressionGrouping(expr *ExpressionGrouping) MangoData {
+	return interpreter.Evaluate(expr.group)
+}
+
 func (interpreter *Interpreter) VisitExpressionAssign(expr *ExpressionAssign) MangoData {
 	value := interpreter.Evaluate(expr.value)
 	interpreter.Scope.Set(expr.name.Literal, value)

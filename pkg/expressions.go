@@ -7,6 +7,7 @@ type Expression interface {
 type VisitorExpression interface {
 	VisitExpressionAssign(expr *ExpressionAssign) MangoData
 	VisitExpressionBinary(expr *ExpressionBinary) MangoData
+	VisitExpressionGrouping(expr *ExpressionGrouping) MangoData
 	VisitExpressionUnary(expr *ExpressionUnary) MangoData
 	VisitExpressionPrimary(expr *ExpressionPrimary) MangoData
 	VisitExpressionVariable(expr *ExpressionVariable) MangoData
@@ -37,6 +38,18 @@ func NewExpressionBinary(left Expression, operator Token, right Expression) *Exp
 
 func (expr *ExpressionBinary) Accept(visitor VisitorExpression) MangoData {
 	return visitor.VisitExpressionBinary(expr)
+}
+
+type ExpressionGrouping struct {
+	group Expression
+}
+
+func NewExpressionGrouping(group Expression) *ExpressionGrouping {
+	return &ExpressionGrouping{group}
+}
+
+func (expr *ExpressionGrouping) Accept(visitor VisitorExpression) MangoData {
+	return visitor.VisitExpressionGrouping(expr)
 }
 
 type ExpressionUnary struct {

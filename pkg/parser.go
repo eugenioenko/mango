@@ -43,7 +43,7 @@ func NewParser() *Parser {
 	return &Parser{}
 }
 
-func (parser *Parser) Match(tokenTypes ...int) bool {
+func (parser *Parser) MatchToken(tokenTypes ...int) bool {
 	for _, tokenType := range tokenTypes {
 		if parser.Peek().Type == tokenType {
 			parser.Advance()
@@ -64,22 +64,25 @@ func (parser *Parser) MatchSymbol(symbols ...string) bool {
 	return false
 }
 
-func (parser *Parser) Check(tokenTypes ...int) bool {
-	for _, tokenType := range tokenTypes {
-		currentType := parser.Peek().Type
-		if currentType == tokenType {
-			return true
-		}
-	}
-	return false
+func (parser *Parser) Check(tokenType int) bool {
+	return parser.Peek().Type == tokenType
 }
 
-func (parser *Parser) Consume(errorMessage string, tokenTypes ...int) Token {
-	if parser.Check(tokenTypes...) {
+func (parser *Parser) ConsumeToken(tokenType int, errorMessage string) Token {
+	if parser.Check(tokenType) {
 		return parser.Advance()
 	}
 	parser.Error(errorMessage)
 	return parser.Peek()
+}
+
+func (parser *Parser) ConsumeSymbol(symbol string, errorMessage string) Token {
+	next := parser.Peek()
+	if next.Literal == symbol {
+		return parser.Advance()
+	}
+	parser.Error(errorMessage)
+	return next
 }
 
 func (parser *Parser) Advance() Token {
@@ -159,11 +162,16 @@ func (parser *Parser) Unary() Expression {
 
 func (parser *Parser) Primary() Expression {
 
-	if parser.Match(TokenTypeNumber) {
+	if parser.MatchToken(TokenTypeNumber) {
 		return NewExpressionPrimary(parser.Previous())
 	}
-	if parser.Match(TokenTypeIdentifier) {
+	if parser.MatchToken(TokenTypeIdentifier) {
 		return NewExpressionVariable(parser.Previous())
+	}
+	if parser.MatchSymbol("(") {
+		expr := parser.Expression()
+		parser.ConsumeSymbol(")", "closing ) required after group expression")
+		return NewExpressionGrouping(expr)
 	}
 
 	if parser.Eof() {

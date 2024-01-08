@@ -3,6 +3,7 @@ let fs = require("fs");
 const ExpressionAST = {
   Assign: ["name Token", "value Expression"],
   Binary: ["left Expression", "operator Token", "right Expression"],
+  Grouping: ["group Expression"],
   Unary: ["operator Token", "right Expression"],
   Primary: ["value Token"],
   Variable: ["name Token"],
