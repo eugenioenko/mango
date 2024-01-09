@@ -19,17 +19,16 @@ func main() {
 		return
 	}
 
-	if args[1] == "version" {
+	if args[1] == "--version" {
 		fmt.Println(version)
 	}
 
-	if args[1] == "help" {
+	if args[1] == "--help" {
 		help()
 		return
 	}
 
-	mango.Eval(args[1])
-
+	execute(args[1])
 }
 
 func help() {
@@ -37,10 +36,19 @@ func help() {
 Mango is a minimal expression parser and interpreter
 
 Usage:
+  mango [options] [file] [arguments]
 
-  mango [expression]: evaluates the expression
-	mango version: prints the version
-	mango help: prints this message
+	--version	prints mango version
+	--help		prints this message
 
 `)
+}
+
+func execute(filename string) {
+	source, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Printf("[Mango CLI Error] %s", err)
+		os.Exit(1)
+	}
+	mango.Eval(string(source))
 }
