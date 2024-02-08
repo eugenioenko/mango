@@ -124,8 +124,11 @@ func (interpreter *Interpreter) VisitExpressionUnary(expr *ExpressionUnary) Mang
 }
 
 func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable) MangoData {
-	interpreter.Error("unimplemented")
-	return nil
+	value, ok := interpreter.Scope.Get(expr.name.Literal)
+	if !ok {
+		return NewMangoNull()
+	}
+	return value
 }
 
 func (interpreter *Interpreter) VisitExpressionGrouping(expr *ExpressionGrouping) MangoData {

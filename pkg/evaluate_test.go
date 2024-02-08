@@ -27,7 +27,7 @@ func TestItShouldEvaluate(t *testing.T) {
 
 func TestItAssign(t *testing.T) {
 	source := `
-		var = 5 + 90
+		var := 5 + 90
 	`
 	result, err := mango.Eval(source)
 
@@ -74,6 +74,22 @@ func TestItPrints(t *testing.T) {
 	}
 
 	if result[0].ToInteger() != 2 {
+		t.Fail()
+	}
+}
+func TestItAssignVars(t *testing.T) {
+	source := `
+		a := 5 + 90
+		b := a + 5
+		print b
+	`
+	result, err := mango.Eval(source)
+
+	if err != nil {
+		t.Fail()
+	}
+
+	if result[2].ToInteger() != 100 {
 		t.Fail()
 	}
 }

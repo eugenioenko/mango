@@ -29,7 +29,7 @@ func TestItShouldReturnEmptyOnNoTokens(t *testing.T) {
 
 func TestItShouldErrorOnUnknown(t *testing.T) {
 	source := `
-		1 $ 2
+		1 # 2
 	`
 	tokens, _ := mango.Tokenize(source)
 	_, err := mango.Parse(tokens)
@@ -38,7 +38,7 @@ func TestItShouldErrorOnUnknown(t *testing.T) {
 		t.Fail()
 	}
 
-	if err.Error() != "[Syntax Error] Invalid or unexpected token: $" {
+	if err.Error() != "[Syntax Error] Invalid or unexpected token: `#`" {
 		t.Fail()
 	}
 
