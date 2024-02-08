@@ -6,12 +6,12 @@ func Eval(source string) (result []MangoData, err error) {
 		return nil, err
 	}
 
-	expressions, err := Parse(tokens)
+	statements, err := Parse(tokens)
 	if err != nil {
 		return nil, err
 	}
 
-	result, err = Interpret(expressions)
+	result, err = Interpret(statements)
 	if err != nil {
 		return nil, err
 	}

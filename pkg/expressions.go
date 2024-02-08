@@ -10,17 +10,16 @@ type VisitorExpression interface {
 	VisitExpressionGrouping(expr *ExpressionGrouping) MangoData
 	VisitExpressionUnary(expr *ExpressionUnary) MangoData
 	VisitExpressionPrimary(expr *ExpressionPrimary) MangoData
-	VisitExpressionPrint(expr *ExpressionPrint) MangoData
 	VisitExpressionVariable(expr *ExpressionVariable) MangoData
 }
 
 type ExpressionAssign struct {
-	name  Token
-	value Expression
+	Name  Token
+	Value Expression
 }
 
-func NewExpressionAssign(name Token, value Expression) *ExpressionAssign {
-	return &ExpressionAssign{name, value}
+func NewExpressionAssign(Name Token, Value Expression) *ExpressionAssign {
+	return &ExpressionAssign{Name, Value}
 }
 
 func (expr *ExpressionAssign) Accept(visitor VisitorExpression) MangoData {
@@ -28,13 +27,13 @@ func (expr *ExpressionAssign) Accept(visitor VisitorExpression) MangoData {
 }
 
 type ExpressionBinary struct {
-	left     Expression
-	operator Token
-	right    Expression
+	Left     Expression
+	Operator Token
+	Right    Expression
 }
 
-func NewExpressionBinary(left Expression, operator Token, right Expression) *ExpressionBinary {
-	return &ExpressionBinary{left, operator, right}
+func NewExpressionBinary(Left Expression, Operator Token, Right Expression) *ExpressionBinary {
+	return &ExpressionBinary{Left, Operator, Right}
 }
 
 func (expr *ExpressionBinary) Accept(visitor VisitorExpression) MangoData {
@@ -42,11 +41,11 @@ func (expr *ExpressionBinary) Accept(visitor VisitorExpression) MangoData {
 }
 
 type ExpressionGrouping struct {
-	group Expression
+	Group Expression
 }
 
-func NewExpressionGrouping(group Expression) *ExpressionGrouping {
-	return &ExpressionGrouping{group}
+func NewExpressionGrouping(Group Expression) *ExpressionGrouping {
+	return &ExpressionGrouping{Group}
 }
 
 func (expr *ExpressionGrouping) Accept(visitor VisitorExpression) MangoData {
@@ -54,12 +53,12 @@ func (expr *ExpressionGrouping) Accept(visitor VisitorExpression) MangoData {
 }
 
 type ExpressionUnary struct {
-	operator Token
-	right    Expression
+	Operator Token
+	Right    Expression
 }
 
-func NewExpressionUnary(operator Token, right Expression) *ExpressionUnary {
-	return &ExpressionUnary{operator, right}
+func NewExpressionUnary(Operator Token, Right Expression) *ExpressionUnary {
+	return &ExpressionUnary{Operator, Right}
 }
 
 func (expr *ExpressionUnary) Accept(visitor VisitorExpression) MangoData {
@@ -67,35 +66,23 @@ func (expr *ExpressionUnary) Accept(visitor VisitorExpression) MangoData {
 }
 
 type ExpressionPrimary struct {
-	value Token
+	Value Token
 }
 
-func NewExpressionPrimary(value Token) *ExpressionPrimary {
-	return &ExpressionPrimary{value}
+func NewExpressionPrimary(Value Token) *ExpressionPrimary {
+	return &ExpressionPrimary{Value}
 }
 
 func (expr *ExpressionPrimary) Accept(visitor VisitorExpression) MangoData {
 	return visitor.VisitExpressionPrimary(expr)
 }
 
-type ExpressionPrint struct {
-	value Expression
-}
-
-func NewExpressionPrint(value Expression) *ExpressionPrint {
-	return &ExpressionPrint{value}
-}
-
-func (expr *ExpressionPrint) Accept(visitor VisitorExpression) MangoData {
-	return visitor.VisitExpressionPrint(expr)
-}
-
 type ExpressionVariable struct {
-	name Token
+	Name Token
 }
 
-func NewExpressionVariable(name Token) *ExpressionVariable {
-	return &ExpressionVariable{name}
+func NewExpressionVariable(Name Token) *ExpressionVariable {
+	return &ExpressionVariable{Name}
 }
 
 func (expr *ExpressionVariable) Accept(visitor VisitorExpression) MangoData {

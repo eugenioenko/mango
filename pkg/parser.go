@@ -5,15 +5,15 @@ import (
 )
 
 type Parser struct {
-	current     int
-	tokens      []Token
-	expressions []Expression
+	current    int
+	tokens     []Token
+	statements []Statement
 }
 
-func Parse(tokens []Token) (exprs []Expression, err error) {
+func Parse(tokens []Token) (stms []Statement, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			exprs = nil
+			stms = nil
 			err = fmt.Errorf("%s", r)
 			return
 		}
@@ -24,19 +24,19 @@ func Parse(tokens []Token) (exprs []Expression, err error) {
 	}
 
 	parser := NewParser()
-	exprs = parser.Parse(tokens)
-	return exprs, err
+	stms = parser.Parse(tokens)
+	return stms, err
 }
 
-func (parser *Parser) Parse(tokens []Token) []Expression {
+func (parser *Parser) Parse(tokens []Token) []Statement {
 	parser.current = 0
-	parser.expressions = make([]Expression, 0)
+	parser.statements = make([]Statement, 0)
 	parser.tokens = tokens
 	for !parser.Eof() {
 		stmt := parser.Statement()
-		parser.expressions = append(parser.expressions, stmt)
+		parser.statements = append(parser.statements, stmt)
 	}
-	return parser.expressions
+	return parser.statements
 }
 
 func NewParser() *Parser {
@@ -112,8 +112,24 @@ func (parser *Parser) Error(errorMessage string) {
 // ------------------------------------------------------------------------------
 // AST STARTS HERE
 // ------------------------------------------------------------------------------
-func (parser *Parser) Statement() Expression {
-	return parser.Expression()
+func (parser *Parser) Statement() Statement {
+	if parser.MatchToken(TokenTypeReserved) {
+		token := parser.Previous()
+		if token.Literal == "print" {
+			return parser.Print()
+		}
+	}
+	return parser.ExpressionStatement()
+}
+
+func (parser *Parser) Print() Statement {
+	expr := parser.Expression()
+	return NewStatementPrint(expr)
+}
+
+func (parser *Parser) ExpressionStatement() Statement {
+	expr := parser.Expression()
+	return NewStatementExpression(expr)
 }
 
 func (parser *Parser) Expression() Expression {
@@ -125,7 +141,7 @@ func (parser *Parser) Assignment() Expression {
 	if parser.MatchSymbol(":=") {
 		right := parser.Assignment()
 		if _, ok := expr.(*ExpressionVariable); ok {
-			return NewExpressionAssign(expr.(*ExpressionVariable).name, right)
+			return NewExpressionAssign(expr.(*ExpressionVariable).Name, right)
 		}
 	}
 	return expr
@@ -172,11 +188,6 @@ func (parser *Parser) Primary() Expression {
 		expr := parser.Expression()
 		parser.ConsumeSymbol(")", "closing ) required after group expression")
 		return NewExpressionGrouping(expr)
-	}
-	if parser.Peek().Type == TokenTypeReserved && parser.Peek().Literal == "print" {
-		parser.ConsumeToken(TokenTypeReserved, "print token")
-		expr := parser.Expression()
-		return NewExpressionPrint(expr)
 	}
 
 	if parser.Eof() {

@@ -65,18 +65,21 @@ func TestItShouldDoAssignment(t *testing.T) {
 		variable := 100
 	`
 	tokens, _ := mango.Tokenize(source)
-	expressions, err := mango.Parse(tokens)
+	statements, err := mango.Parse(tokens)
 
 	if err != nil {
 		t.Fail()
 	}
 
-	if len(expressions) != 1 {
+	if len(statements) != 1 {
 		t.Fail()
 	}
 
-	assignment := expressions[0]
-	_, ok := assignment.(*mango.ExpressionAssign)
+	statement, ok := statements[0].(*mango.StatementExpression)
+	if ok != true {
+		t.Fail()
+	}
+	_, ok = statement.Value.(*mango.ExpressionAssign)
 	if ok != true {
 		t.Fail()
 	}
@@ -87,18 +90,21 @@ func TestItShouldDoGrouping(t *testing.T) {
 		(100)
 	`
 	tokens, _ := mango.Tokenize(source)
-	expressions, err := mango.Parse(tokens)
+	statements, err := mango.Parse(tokens)
 
 	if err != nil {
 		t.Fail()
 	}
 
-	if len(expressions) != 1 {
+	if len(statements) != 1 {
 		t.Fail()
 	}
 
-	grouping := expressions[0]
-	_, ok := grouping.(*mango.ExpressionGrouping)
+	statement, ok := statements[0].(*mango.StatementExpression)
+	if ok != true {
+		t.Fail()
+	}
+	_, ok = statement.Value.(*mango.ExpressionGrouping)
 	if ok != true {
 		t.Fail()
 	}

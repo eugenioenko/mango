@@ -15,7 +15,7 @@ func NewInterpreter() *Interpreter {
 	return &interpreter
 }
 
-func Interpret(statements []Expression) (result []MangoData, err error) {
+func Interpret(statements []Statement) (result []MangoData, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			result = nil
@@ -33,10 +33,10 @@ func Interpret(statements []Expression) (result []MangoData, err error) {
 	return result, err
 }
 
-func (interpreter *Interpreter) Interpret(statements []Expression) []MangoData {
+func (interpreter *Interpreter) Interpret(statements []Statement) []MangoData {
 	result := []MangoData{}
 	for _, statement := range statements {
-		result = append(result, interpreter.Evaluate(statement))
+		result = append(result, interpreter.Execute(statement))
 
 	}
 	return result
@@ -46,13 +46,27 @@ func (interpreter *Interpreter) Evaluate(expr Expression) MangoData {
 	return expr.Accept(interpreter)
 }
 
+func (interpreter *Interpreter) Execute(stmt Statement) MangoData {
+	return stmt.Accept(interpreter)
+}
+
 func (interpreter *Interpreter) Error(errorMessage string) {
 	panic("[Runtime Error] " + errorMessage)
 }
 
+func (interpreter *Interpreter) VisitStatementExpression(stmt *StatementExpression) MangoData {
+	return interpreter.Evaluate(stmt.Value)
+}
+
+func (interpreter *Interpreter) VisitStatementPrint(stmt *StatementPrint) MangoData {
+	value := interpreter.Evaluate(stmt.Value)
+	fmt.Println(value.GetValue())
+	return value
+}
+
 func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
-	left := interpreter.Evaluate(expr.left)
-	right := interpreter.Evaluate(expr.right)
+	left := interpreter.Evaluate(expr.Left)
+	right := interpreter.Evaluate(expr.Right)
 
 	if right.GetType() != left.GetType() {
 		interpreter.Error("Type mismatch")
@@ -60,13 +74,13 @@ func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) Ma
 
 	if left.GetType() == MangoTypeInteger {
 		var result int64
-		if expr.operator.Literal == "+" {
+		if expr.Operator.Literal == "+" {
 			result = left.ToInteger() + right.ToInteger()
-		} else if expr.operator.Literal == "-" {
+		} else if expr.Operator.Literal == "-" {
 			result = left.ToInteger() - right.ToInteger()
-		} else if expr.operator.Literal == "*" {
+		} else if expr.Operator.Literal == "*" {
 			result = left.ToInteger() * right.ToInteger()
-		} else if expr.operator.Literal == "/" {
+		} else if expr.Operator.Literal == "/" {
 			result = left.ToInteger() / right.ToInteger()
 		}
 		return NewMangoInteger(result)
@@ -74,19 +88,19 @@ func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) Ma
 
 	if left.GetType() == MangoTypeFloat {
 		var result float64
-		if expr.operator.Literal == "+" {
+		if expr.Operator.Literal == "+" {
 			result = left.ToFloat() + right.ToFloat()
-		} else if expr.operator.Literal == "-" {
+		} else if expr.Operator.Literal == "-" {
 			result = left.ToFloat() - right.ToFloat()
-		} else if expr.operator.Literal == "*" {
+		} else if expr.Operator.Literal == "*" {
 			result = left.ToFloat() * right.ToFloat()
-		} else if expr.operator.Literal == "/" {
+		} else if expr.Operator.Literal == "/" {
 			result = left.ToFloat() / right.ToFloat()
 		}
 		return NewMangoFloat(result)
 	}
 
-	if left.GetType() == MangoTypeString && expr.operator.Literal == "+" {
+	if left.GetType() == MangoTypeString && expr.Operator.Literal == "+" {
 		return NewMangoString(left.ToString() + right.ToString())
 	}
 
@@ -94,24 +108,24 @@ func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) Ma
 }
 
 func (interpreter *Interpreter) VisitExpressionPrimary(expr *ExpressionPrimary) MangoData {
-	if expr.value.Type == TokenTypeNumber {
-		value, err := strconv.ParseInt(expr.value.Literal, 10, 64)
+	if expr.Value.Type == TokenTypeNumber {
+		value, err := strconv.ParseInt(expr.Value.Literal, 10, 64)
 		if err != nil {
-			interpreter.Error(fmt.Sprintf("%s is not a valid integer", expr.value.Literal))
+			interpreter.Error(fmt.Sprintf("%s is not a valid integer", expr.Value.Literal))
 		}
 		return NewMangoInteger(value)
 	}
 
-	if expr.value.Type == TokenTypeFloat {
-		value, err := strconv.ParseFloat(expr.value.Literal, 64)
+	if expr.Value.Type == TokenTypeFloat {
+		value, err := strconv.ParseFloat(expr.Value.Literal, 64)
 		if err != nil {
-			interpreter.Error(fmt.Sprintf("%s is not a valid float", expr.value.Literal))
+			interpreter.Error(fmt.Sprintf("%s is not a valid float", expr.Value.Literal))
 		}
 		return NewMangoFloat(value)
 	}
 
-	if expr.value.Type == TokenTypeString {
-		return NewMangoString(expr.value.Literal)
+	if expr.Value.Type == TokenTypeString {
+		return NewMangoString(expr.Value.Literal)
 	}
 
 	interpreter.Error("unknown token type")
@@ -124,7 +138,7 @@ func (interpreter *Interpreter) VisitExpressionUnary(expr *ExpressionUnary) Mang
 }
 
 func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable) MangoData {
-	value, ok := interpreter.Scope.Get(expr.name.Literal)
+	value, ok := interpreter.Scope.Get(expr.Name.Literal)
 	if !ok {
 		return NewMangoNull()
 	}
@@ -132,17 +146,17 @@ func (interpreter *Interpreter) VisitExpressionVariable(expr *ExpressionVariable
 }
 
 func (interpreter *Interpreter) VisitExpressionGrouping(expr *ExpressionGrouping) MangoData {
-	return interpreter.Evaluate(expr.group)
+	return interpreter.Evaluate(expr.Group)
 }
 
-func (interpreter *Interpreter) VisitExpressionPrint(expr *ExpressionPrint) MangoData {
-	result := interpreter.Evaluate(expr.value)
+func (interpreter *Interpreter) VisitExpressionPrint(expr *StatementPrint) MangoData {
+	result := interpreter.Evaluate(expr.Value)
 	fmt.Println(result.ToString())
 	return result
 }
 
 func (interpreter *Interpreter) VisitExpressionAssign(expr *ExpressionAssign) MangoData {
-	value := interpreter.Evaluate(expr.value)
-	interpreter.Scope.Set(expr.name.Literal, value)
+	value := interpreter.Evaluate(expr.Value)
+	interpreter.Scope.Set(expr.Name.Literal, value)
 	return nil
 }

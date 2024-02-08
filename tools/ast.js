@@ -1,17 +1,21 @@
 let fs = require("fs");
 
 const ExpressionAST = {
-  Assign: ["name Token", "value Expression"],
-  Binary: ["left Expression", "operator Token", "right Expression"],
-  Grouping: ["group Expression"],
-  Unary: ["operator Token", "right Expression"],
-  Primary: ["value Token"],
-  Print: ["value Expression"],
-  Variable: ["name Token"],
+  Assign: ["Name Token", "Value Expression"],
+  Binary: ["Left Expression", "Operator Token", "Right Expression"],
+  Grouping: ["Group Expression"],
+  Unary: ["Operator Token", "Right Expression"],
+  Primary: ["Value Token"],
+  Variable: ["Name Token"],
+};
+
+const StatementAST = {
+  Expression: ["Value Expression"],
+  Print: ["Value Expression"],
 };
 
 function generateAST(base, arg, AST, filename) {
-  let file = `package main
+  let file = `package mango
 
 type ${base} interface {
     Accept(visitor Visitor${base}) MangoData
@@ -47,3 +51,4 @@ type ${base} interface {
 }
 
 generateAST("Expression", "expr", ExpressionAST, "expressions");
+generateAST("Statement", "stmt", StatementAST, "statements");
