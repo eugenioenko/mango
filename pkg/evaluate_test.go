@@ -116,6 +116,9 @@ func TestItDoesIf(t *testing.T) {
 		if 2 == 1 {
 			print "no"
 		}
+		if 3 != 1 {
+			print "yes"
+		}
 	`
 	_, err := mango.Eval(source)
 

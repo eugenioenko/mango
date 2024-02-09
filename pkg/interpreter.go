@@ -79,16 +79,18 @@ func (interpreter *Interpreter) VisitStatementIf(stmt *StatementIf) MangoData {
 	return NewMangoNull()
 }
 
-func (interpreter *Interpreter) VisitExpressionEquality(expr *ExpressionEquality) MangoData {
-	left := interpreter.Evaluate(expr.Left)
-	right := interpreter.Evaluate(expr.Right)
-	equals := left.GetType() == right.GetType() && left.GetValue() == right.GetValue()
-	return NewMangoBoolean(equals)
-}
-
 func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
 	left := interpreter.Evaluate(expr.Left)
 	right := interpreter.Evaluate(expr.Right)
+	operator := expr.Operator.Literal
+
+	if operator == "==" || operator == "!=" {
+		equals := left.GetType() == right.GetType() && left.GetValue() == right.GetValue()
+		if operator == "!=" {
+			equals = !equals
+		}
+		return NewMangoBoolean(equals)
+	}
 
 	if right.GetType() != left.GetType() {
 		interpreter.Error("Type mismatch")
@@ -96,13 +98,13 @@ func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) Ma
 
 	if left.GetType() == MangoTypeInteger {
 		var result int64
-		if expr.Operator.Literal == "+" {
+		if operator == "+" {
 			result = left.ToInteger() + right.ToInteger()
-		} else if expr.Operator.Literal == "-" {
+		} else if operator == "-" {
 			result = left.ToInteger() - right.ToInteger()
-		} else if expr.Operator.Literal == "*" {
+		} else if operator == "*" {
 			result = left.ToInteger() * right.ToInteger()
-		} else if expr.Operator.Literal == "/" {
+		} else if operator == "/" {
 			result = left.ToInteger() / right.ToInteger()
 		}
 		return NewMangoInteger(result)
@@ -110,19 +112,19 @@ func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) Ma
 
 	if left.GetType() == MangoTypeFloat {
 		var result float64
-		if expr.Operator.Literal == "+" {
+		if operator == "+" {
 			result = left.ToFloat() + right.ToFloat()
-		} else if expr.Operator.Literal == "-" {
+		} else if operator == "-" {
 			result = left.ToFloat() - right.ToFloat()
-		} else if expr.Operator.Literal == "*" {
+		} else if operator == "*" {
 			result = left.ToFloat() * right.ToFloat()
-		} else if expr.Operator.Literal == "/" {
+		} else if operator == "/" {
 			result = left.ToFloat() / right.ToFloat()
 		}
 		return NewMangoFloat(result)
 	}
 
-	if left.GetType() == MangoTypeString && expr.Operator.Literal == "+" {
+	if left.GetType() == MangoTypeString && operator == "+" {
 		return NewMangoString(left.ToString() + right.ToString())
 	}
 

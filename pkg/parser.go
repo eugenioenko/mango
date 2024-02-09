@@ -173,9 +173,10 @@ func (parser *Parser) Assignment() Expression {
 
 func (parser *Parser) Equality() Expression {
 	expr := parser.Addition()
-	for parser.Match(TokenTypeSymbol, "==") {
+	for parser.Match(TokenTypeSymbol, "==", "!=") {
+		operator := parser.Previous()
 		right := parser.Addition()
-		expr = NewExpressionEquality(expr, right)
+		expr = NewExpressionBinary(expr, operator, right)
 	}
 	return expr
 }
