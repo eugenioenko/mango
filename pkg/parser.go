@@ -184,12 +184,14 @@ func (parser *Parser) Primary() Expression {
 	if parser.MatchToken(TokenTypeIdentifier) {
 		return NewExpressionVariable(parser.Previous())
 	}
+	if parser.MatchToken(TokenTypeString) {
+		return NewExpressionPrimary(parser.Previous())
+	}
 	if parser.MatchSymbol("(") {
 		expr := parser.Expression()
 		parser.ConsumeSymbol(")", "closing ) required after group expression")
 		return NewExpressionGrouping(expr)
 	}
-
 	if parser.Eof() {
 		parser.Error("Unexpected end of file")
 	}

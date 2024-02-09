@@ -1,7 +1,4 @@
-x = 100
-if something {
-
-}
-myFunc = a, b, c => {
-
-}
+a := 100 + (10 / 2 * 5) - 1
+b := a * 2
+print "test" + "hello"
+print b

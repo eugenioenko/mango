@@ -25,6 +25,20 @@ func TestItShouldScanTokens(t *testing.T) {
 	}
 }
 
+func TestItShouldScanStrings(t *testing.T) {
+	source := `
+		x := "string"
+	`
+	tokens, err := mango.Tokenize(source)
+
+	if err != nil {
+		t.Fail()
+	}
+	if len(tokens) != 4 {
+		t.Fail()
+	}
+}
+
 func TestItShouldReturnErrorForUnknownTokens(t *testing.T) {
 	source := `
 		$

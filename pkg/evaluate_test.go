@@ -93,3 +93,7 @@ func TestItAssignVars(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestItShouldRun(t *testing.T) {
+	mango.Run("/Users/enko/Documents/Projects/mango/example.mgo")
+}

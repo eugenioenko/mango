@@ -101,6 +101,22 @@ func (tokenizer *Tokenizer) Identifier() {
 	}
 }
 
+func (tokenizer *Tokenizer) String() bool {
+	for tokenizer.Peek() != '"' && !tokenizer.Eof() {
+		tokenizer.Advance()
+	}
+
+	if tokenizer.Eof() {
+		return false
+	}
+
+	token := string(tokenizer.source[tokenizer.start+1 : tokenizer.current])
+	tokenizer.AddToken(TokenTypeString, token)
+	tokenizer.Advance()
+
+	return true
+}
+
 func (tokenizer *Tokenizer) Number() {
 	tokenType := TokenTypeNumber
 
@@ -144,6 +160,11 @@ func (tokenizer *Tokenizer) ScanToken() (bool, error) {
 		tokenizer.Number()
 	case unicode.IsLetter(char):
 		tokenizer.Identifier()
+	case char == '"':
+		ok := tokenizer.String()
+		if !ok {
+			err = "[Scanner Error] Unexpected end of file"
+		}
 	case tokenizer.ignoreChar(char):
 		break
 	default:

@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	execute(args[1])
+	mango.Run(args[1])
 }
 
 func help() {
@@ -42,13 +42,4 @@ Usage:
 	--help		prints this message
 
 `)
-}
-
-func execute(filename string) {
-	source, err := os.ReadFile(filename)
-	if err != nil {
-		fmt.Printf("[Mango CLI Error] %s", err)
-		os.Exit(1)
-	}
-	mango.Eval(string(source))
 }
