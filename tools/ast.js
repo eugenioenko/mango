@@ -12,6 +12,7 @@ const ExpressionAST = {
 const StatementAST = {
   Expression: ["Value Expression"],
   Print: ["Value Expression"],
+  Block: ["Statements []Statement"],
 };
 
 function generateAST(base, arg, AST, filename) {

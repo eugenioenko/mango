@@ -113,6 +113,9 @@ func (parser *Parser) Error(errorMessage string) {
 // AST STARTS HERE
 // ------------------------------------------------------------------------------
 func (parser *Parser) Statement() Statement {
+	if parser.MatchSymbol("{") {
+		return parser.Block()
+	}
 	if parser.MatchToken(TokenTypeReserved) {
 		token := parser.Previous()
 		if token.Literal == "print" {
@@ -120,6 +123,16 @@ func (parser *Parser) Statement() Statement {
 		}
 	}
 	return parser.ExpressionStatement()
+}
+
+func (parser *Parser) Block() Statement {
+	statements := []Statement{}
+	for parser.Peek().Literal != "}" && !parser.Eof() {
+		statements = append(statements, parser.Statement())
+	}
+
+	parser.ConsumeSymbol("}", "Expected close brace '}' after block statement")
+	return NewStatementBlock(statements)
 }
 
 func (parser *Parser) Print() Statement {

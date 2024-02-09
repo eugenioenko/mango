@@ -94,6 +94,16 @@ func TestItAssignVars(t *testing.T) {
 	}
 }
 
-func TestItShouldRun(t *testing.T) {
-	mango.Run("/Users/enko/Documents/Projects/mango/example.mgo")
+func TestItDoesBlock(t *testing.T) {
+	source := `
+		{
+			a := 5 + 90
+			b := a + 5
+		}
+	`
+	_, err := mango.Eval(source)
+
+	if err != nil {
+		t.Fail()
+	}
 }

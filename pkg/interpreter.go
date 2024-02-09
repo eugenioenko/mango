@@ -64,6 +64,11 @@ func (interpreter *Interpreter) VisitStatementPrint(stmt *StatementPrint) MangoD
 	return value
 }
 
+func (interpreter *Interpreter) VisitStatementBlock(stmt *StatementBlock) MangoData {
+	interpreter.Interpret(stmt.Statements)
+	return NewMangoNull()
+}
+
 func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
 	left := interpreter.Evaluate(expr.Left)
 	right := interpreter.Evaluate(expr.Right)
