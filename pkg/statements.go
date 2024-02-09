@@ -9,6 +9,7 @@ type VisitorStatement interface {
 	VisitStatementPrint(stmt *StatementPrint) MangoData
 	VisitStatementBlock(stmt *StatementBlock) MangoData
 	VisitStatementIf(stmt *StatementIf) MangoData
+	VisitStatementWhile(stmt *StatementWhile) MangoData
 }
 
 type StatementExpression struct {
@@ -59,5 +60,18 @@ func NewStatementIf(Condition Expression, Then Statement, Else Statement) *State
 
 func (stmt *StatementIf) Accept (visitor VisitorStatement) MangoData {
 	return visitor.VisitStatementIf(stmt)
+}
+
+type StatementWhile struct {
+    Condition Expression
+    Loop Statement
+}
+
+func NewStatementWhile(Condition Expression, Loop Statement) *StatementWhile {
+	return &StatementWhile{Condition, Loop}
+}
+
+func (stmt *StatementWhile) Accept (visitor VisitorStatement) MangoData {
+	return visitor.VisitStatementWhile(stmt)
 }
 

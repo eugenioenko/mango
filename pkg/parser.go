@@ -116,6 +116,9 @@ func (parser *Parser) Statement() Statement {
 	if parser.Match(TokenTypeReserved, "if") {
 		return parser.IfStatement()
 	}
+	if parser.Match(TokenTypeReserved, "while") {
+		return parser.WhileStatement()
+	}
 	if parser.Match(TokenTypeSymbol, "{") {
 		return parser.Block()
 	}
@@ -123,6 +126,13 @@ func (parser *Parser) Statement() Statement {
 		return parser.Print()
 	}
 	return parser.ExpressionStatement()
+}
+
+func (parser *Parser) WhileStatement() Statement {
+	condition := parser.Expression()
+	loop := parser.Statement()
+
+	return NewStatementWhile(condition, loop)
 }
 
 func (parser *Parser) Block() Statement {

@@ -14,6 +14,7 @@ const StatementAST = {
   Print: ["Value Expression"],
   Block: ["Statements []Statement"],
   If: ["Condition Expression", "Then Statement", "Else Statement"],
+  While: ["Condition Expression", "Loop Statement"],
 };
 
 function generateAST(base, arg, AST, filename) {

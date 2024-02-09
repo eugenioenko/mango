@@ -69,6 +69,13 @@ func (interpreter *Interpreter) VisitStatementBlock(stmt *StatementBlock) MangoD
 	return NewMangoNull()
 }
 
+func (interpreter *Interpreter) VisitStatementWhile(stmt *StatementWhile) MangoData {
+	for interpreter.Evaluate(stmt.Condition).ToBoolean() {
+		interpreter.Execute(stmt.Loop)
+	}
+	return NewMangoNull()
+}
+
 func (interpreter *Interpreter) VisitStatementIf(stmt *StatementIf) MangoData {
 	condition := interpreter.Evaluate(stmt.Condition)
 	if condition.ToBoolean() {
