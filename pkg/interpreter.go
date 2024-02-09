@@ -69,6 +69,23 @@ func (interpreter *Interpreter) VisitStatementBlock(stmt *StatementBlock) MangoD
 	return NewMangoNull()
 }
 
+func (interpreter *Interpreter) VisitStatementIf(stmt *StatementIf) MangoData {
+	condition := interpreter.Evaluate(stmt.Condition)
+	if condition.ToBoolean() {
+		interpreter.Execute(stmt.Then)
+	} else if stmt.Else != nil {
+		interpreter.Execute(stmt.Else)
+	}
+	return NewMangoNull()
+}
+
+func (interpreter *Interpreter) VisitExpressionEquality(expr *ExpressionEquality) MangoData {
+	left := interpreter.Evaluate(expr.Left)
+	right := interpreter.Evaluate(expr.Right)
+	equals := left.GetType() == right.GetType() && left.GetValue() == right.GetValue()
+	return NewMangoBoolean(equals)
+}
+
 func (interpreter *Interpreter) VisitExpressionBinary(expr *ExpressionBinary) MangoData {
 	left := interpreter.Evaluate(expr.Left)
 	right := interpreter.Evaluate(expr.Right)

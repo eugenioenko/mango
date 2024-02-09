@@ -107,3 +107,19 @@ func TestItDoesBlock(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestItDoesIf(t *testing.T) {
+	source := `
+		if 2 == 2 {
+			print "yes"
+		}
+		if 2 == 1 {
+			print "no"
+		}
+	`
+	_, err := mango.Eval(source)
+
+	if err != nil {
+		t.Fail()
+	}
+}

@@ -43,7 +43,7 @@ func NewParser() *Parser {
 	return &Parser{}
 }
 
-func (parser *Parser) MatchToken(tokenTypes ...int) bool {
+func (parser *Parser) MatchType(tokenTypes ...int) bool {
 	for _, tokenType := range tokenTypes {
 		if parser.Peek().Type == tokenType {
 			parser.Advance()
@@ -53,10 +53,10 @@ func (parser *Parser) MatchToken(tokenTypes ...int) bool {
 	return false
 }
 
-func (parser *Parser) MatchSymbol(symbols ...string) bool {
+func (parser *Parser) Match(tokenType int, symbols ...string) bool {
 	for _, symbol := range symbols {
 		next := parser.Peek()
-		if next.Type == TokenTypeSymbol && next.Literal == symbol {
+		if next.Type == tokenType && next.Literal == symbol {
 			parser.Advance()
 			return true
 		}
@@ -113,14 +113,14 @@ func (parser *Parser) Error(errorMessage string) {
 // AST STARTS HERE
 // ------------------------------------------------------------------------------
 func (parser *Parser) Statement() Statement {
-	if parser.MatchSymbol("{") {
+	if parser.Match(TokenTypeSymbol, "{") {
 		return parser.Block()
 	}
-	if parser.MatchToken(TokenTypeReserved) {
-		token := parser.Previous()
-		if token.Literal == "print" {
-			return parser.Print()
-		}
+	if parser.Match(TokenTypeReserved, "print") {
+		return parser.Print()
+	}
+	if parser.Match(TokenTypeReserved, "if") {
+		return parser.IfStatement()
 	}
 	return parser.ExpressionStatement()
 }
@@ -133,6 +133,17 @@ func (parser *Parser) Block() Statement {
 
 	parser.ConsumeSymbol("}", "Expected close brace '}' after block statement")
 	return NewStatementBlock(statements)
+}
+
+func (parser *Parser) IfStatement() Statement {
+	condition := parser.Expression()
+	thenStmt := parser.Statement()
+	var elseStmt Statement
+	if parser.Match(TokenTypeReserved, "else") {
+		elseStmt = parser.Statement()
+	}
+
+	return NewStatementIf(condition, thenStmt, elseStmt)
 }
 
 func (parser *Parser) Print() Statement {
@@ -150,8 +161,8 @@ func (parser *Parser) Expression() Expression {
 }
 
 func (parser *Parser) Assignment() Expression {
-	expr := parser.Addition()
-	if parser.MatchSymbol(":=") {
+	expr := parser.Equality()
+	if parser.Match(TokenTypeSymbol, ":=") {
 		right := parser.Assignment()
 		if _, ok := expr.(*ExpressionVariable); ok {
 			return NewExpressionAssign(expr.(*ExpressionVariable).Name, right)
@@ -160,9 +171,18 @@ func (parser *Parser) Assignment() Expression {
 	return expr
 }
 
+func (parser *Parser) Equality() Expression {
+	expr := parser.Addition()
+	for parser.Match(TokenTypeSymbol, "==") {
+		right := parser.Addition()
+		expr = NewExpressionEquality(expr, right)
+	}
+	return expr
+}
+
 func (parser *Parser) Addition() Expression {
 	expr := parser.Multiplication()
-	for parser.MatchSymbol("+", "-") {
+	for parser.Match(TokenTypeSymbol, "+", "-") {
 		operator := parser.Previous()
 		right := parser.Multiplication()
 		expr = NewExpressionBinary(expr, operator, right)
@@ -172,7 +192,7 @@ func (parser *Parser) Addition() Expression {
 
 func (parser *Parser) Multiplication() Expression {
 	expr := parser.Unary()
-	for parser.MatchSymbol("*", "/") {
+	for parser.Match(TokenTypeSymbol, "*", "/") {
 		operator := parser.Previous()
 		right := parser.Unary()
 		expr = NewExpressionBinary(expr, operator, right)
@@ -181,7 +201,7 @@ func (parser *Parser) Multiplication() Expression {
 }
 
 func (parser *Parser) Unary() Expression {
-	if parser.MatchSymbol("-") {
+	if parser.Match(TokenTypeSymbol, "-") {
 		operator := parser.Previous()
 		right := parser.Unary()
 		return NewExpressionUnary(operator, right)
@@ -191,16 +211,16 @@ func (parser *Parser) Unary() Expression {
 
 func (parser *Parser) Primary() Expression {
 
-	if parser.MatchToken(TokenTypeNumber) {
+	if parser.MatchType(TokenTypeNumber) {
 		return NewExpressionPrimary(parser.Previous())
 	}
-	if parser.MatchToken(TokenTypeIdentifier) {
+	if parser.MatchType(TokenTypeIdentifier) {
 		return NewExpressionVariable(parser.Previous())
 	}
-	if parser.MatchToken(TokenTypeString) {
+	if parser.MatchType(TokenTypeString) {
 		return NewExpressionPrimary(parser.Previous())
 	}
-	if parser.MatchSymbol("(") {
+	if parser.Match(TokenTypeSymbol, "(") {
 		expr := parser.Expression()
 		parser.ConsumeSymbol(")", "closing ) required after group expression")
 		return NewExpressionGrouping(expr)

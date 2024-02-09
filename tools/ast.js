@@ -3,6 +3,7 @@ let fs = require("fs");
 const ExpressionAST = {
   Assign: ["Name Token", "Value Expression"],
   Binary: ["Left Expression", "Operator Token", "Right Expression"],
+  Equality: ["Left Expression", "Right Expression"],
   Grouping: ["Group Expression"],
   Unary: ["Operator Token", "Right Expression"],
   Primary: ["Value Token"],
@@ -13,6 +14,7 @@ const StatementAST = {
   Expression: ["Value Expression"],
   Print: ["Value Expression"],
   Block: ["Statements []Statement"],
+  If: ["Condition Expression", "Then Statement", "Else Statement"],
 };
 
 function generateAST(base, arg, AST, filename) {
