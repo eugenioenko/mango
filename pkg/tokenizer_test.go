@@ -7,11 +7,11 @@ import (
 
 func TestItShouldScanTokens(t *testing.T) {
 	source := `
-		x = 12 * 4
-		y = x + (x * 2)
+		x := 12 * 4
+		y := x + (x * 2)
 
 		func name(a, b) {
-			res = a + b
+			res := a + b
 			return res
 		}
 	`

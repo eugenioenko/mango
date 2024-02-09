@@ -112,9 +112,13 @@ func TestItDoesIf(t *testing.T) {
 	source := `
 		if 2 == 2 {
 			print "yes"
+		} else {
+			print "what"
 		}
 		if 2 == 1 {
 			print "no"
+		} else {
+			print "yes"
 		}
 		if 3 != 1 {
 			print "yes"

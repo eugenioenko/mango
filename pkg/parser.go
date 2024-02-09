@@ -113,14 +113,14 @@ func (parser *Parser) Error(errorMessage string) {
 // AST STARTS HERE
 // ------------------------------------------------------------------------------
 func (parser *Parser) Statement() Statement {
+	if parser.Match(TokenTypeReserved, "if") {
+		return parser.IfStatement()
+	}
 	if parser.Match(TokenTypeSymbol, "{") {
 		return parser.Block()
 	}
 	if parser.Match(TokenTypeReserved, "print") {
 		return parser.Print()
-	}
-	if parser.Match(TokenTypeReserved, "if") {
-		return parser.IfStatement()
 	}
 	return parser.ExpressionStatement()
 }

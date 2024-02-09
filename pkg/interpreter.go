@@ -72,9 +72,9 @@ func (interpreter *Interpreter) VisitStatementBlock(stmt *StatementBlock) MangoD
 func (interpreter *Interpreter) VisitStatementIf(stmt *StatementIf) MangoData {
 	condition := interpreter.Evaluate(stmt.Condition)
 	if condition.ToBoolean() {
-		interpreter.Execute(stmt.Then)
+		return interpreter.Execute(stmt.Then)
 	} else if stmt.Else != nil {
-		interpreter.Execute(stmt.Else)
+		return interpreter.Execute(stmt.Else)
 	}
 	return NewMangoNull()
 }
